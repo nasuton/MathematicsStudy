@@ -2,6 +2,11 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 
+///
+/// マウスの方向にカプセルが向き、
+/// また、左クリックした位置から球が生成されてカプセルに向かってバウンドしていく処理
+///
+
 public class C01Script : MonoBehaviour
 {
     /// <summary>
