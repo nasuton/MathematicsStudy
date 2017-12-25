@@ -140,19 +140,77 @@ public class C02Script : MonoBehaviour
             Elevation = Mathf.Asin(cartesianCoordinate.y / Radius);
         }
 
+        public Vector3 ToCartesian
+        {
+            get
+            {
+                //球面の半径Radiusを斜辺とする、内角が球座標の仰角Elevationにあたる直角三角形から、
+                //Cosを用いてカメラ位置からx軸z軸の平面へ垂直に引いた線とx軸z軸の平面が接する位置から原点までの距離rangeを求める
+                float range = Radius * Mathf.Cos(Elevation);
+
+                //rangeは、方位角Azimuthを内角とする直角三角形の斜辺の長さなので、隣辺にあたるx座標はCos、対辺あたるz座標はSinを掛けて求める。
+                //y座標は、rangeを求めたのと同じ、Radiusが斜辺の長さrで内角がElevationの直角三角形でSinを用いて求める。
+                return new Vector3(range * Mathf.Cos(Azimuth),
+                                   Radius * Mathf.Sin(Elevation),
+                                   range * Mathf.Sin(Azimuth));
+            }
+        }
+
+        public SphericalCoordinates Rotate(float newAzimuth, float newElevatation)
+        {
+            Azimuth += newAzimuth;
+            Elevation += newElevatation;
+
+            return this;
+        }
+
+        public SphericalCoordinates TranslateRadius(float x)
+        {
+            Radius += x;
+
+            return this;
+        }
+
 
     }
 
+    [SerializeField]
     private SphericalCoordinates sphericalCoordinates;
 
     private void Start()
     {
-        
+        //スクリプトを初期化
+        sphericalCoordinates = new SphericalCoordinates(transform.position);
+		
+        //アタッチしたGameObjectのpositionを設定する
+        transform.position = sphericalCoordinates.ToCartesian + pivot.position;
     }
 
     private void Update()
     {
-        
+        float kh, kv, mh, mv, h, v;
+		kh = Input.GetAxis( "Horizontal" );
+		kv = Input.GetAxis( "Vertical" );
+		
+		bool anyMouseButton = Input.GetMouseButton(0) | Input.GetMouseButton(1) | Input.GetMouseButton(2);
+		mh = anyMouseButton ? Input.GetAxis( "Mouse X" ) : 0f;
+		mv = anyMouseButton ? Input.GetAxis( "Mouse Y" ) : 0f;
+		
+		h = kh * kh > mh * mh ? kh : mh;
+		v = kv * kv > mv * mv ? kv : mv;
+		
+		if (h * h > Mathf.Epsilon || v * v > Mathf.Epsilon) {
+			transform.position
+				= sphericalCoordinates.Rotate(h * rotateSpeed * Time.deltaTime, v * rotateSpeed * Time.deltaTime).ToCartesian + pivot.position;
+		}
+
+		float sw = -Input.GetAxis("Mouse ScrollWheel");
+		if (sw * sw > Mathf.Epsilon) {
+			transform.position = sphericalCoordinates.TranslateRadius(sw * Time.deltaTime * scrollSpeed).ToCartesian + pivot.position;
+		}
+
+        //pivotに設定したGameObjectの方へ、このスクリプトをアタッチされたGameObjectを向かせる。
+		transform.LookAt(pivot.position);
     }
 
 }
