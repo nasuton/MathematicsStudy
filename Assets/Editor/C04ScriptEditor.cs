@@ -22,8 +22,6 @@ public class C04ScriptEditor : Editor
         DrawPropertiesExcluding(serializedObject, new string[]{"m_Script"});
         serializedObject.ApplyModifiedProperties();
 
-        C04Script obj = target as C04Script;
-
         EditorGUI.BeginChangeCheck();
 
         EditorGUILayout.BeginVertical(GUI.skin.box);
