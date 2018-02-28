@@ -2,15 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class C05Script : MonoBehaviour {
+public class C05Script : MonoBehaviour
+{
+    public GameObject _gameObject;
 
-	// Use this for initialization
-	void Start () {
-		
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		
+	void Start ()
+    {
+        _gameObject = transform.gameObject;
 	}
 }
